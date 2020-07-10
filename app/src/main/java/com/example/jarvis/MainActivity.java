@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
+import android.annotation.TargetApi;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -13,15 +14,19 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.provider.AlarmClock;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
+import android.speech.tts.TextToSpeech;
 import android.view.View;
 import android.widget.Toast;
 
 import java.util.List;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,8 +34,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, PackageManager.PERMISSION_GRANTED);
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SYSTEM_ALERT_WINDOW}, PackageManager.PERMISSION_GRANTED);
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.USE_FULL_SCREEN_INTENT}, PackageManager.PERMISSION_GRANTED);
     }
 
+    @TargetApi(26)
     public void startService(View v){
         Intent newIntent = new Intent(this, JarvisVoiceRecognizerService.class);
         startService(newIntent);
@@ -38,13 +45,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void stopService(View v){
-        //Intent newIntent = new Intent(this, JarvisAssistance.class);
-        //startActivity(newIntent);
-
-        Uri number = Uri.parse("tel:5551234");
-        Intent callIntent = new Intent(Intent.ACTION_DIAL, number);
-        //callIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(callIntent);
+        Intent intent = new Intent(Intent.ACTION_DIAL);
+        intent.setData(Uri.parse("tel:" + "2125551212"));
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            System.out.println("SENDING PHONE");
+            startActivity(intent);
+        }
     }
 }
 
